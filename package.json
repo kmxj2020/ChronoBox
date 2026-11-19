@@ -1,0 +1,25 @@
+{
+  "name": "chronobox-windows",
+  "version": "5.1.1",
+  "description": "时匣 ChronoBox — 本地文件时间盒、视觉目录快照与 00【Archive】悬浮归档球 Windows 桌面应用",
+  "main": "dist/main/index.js",
+  "author": "Mika",
+  "license": "MIT",
+  "scripts": {
+    "build:main": "tsc -p tsconfig.json",
+    "build:renderer": "tsc -p tsconfig.renderer.json && node scripts/copy-assets.js",
+    "build": "npm run build:main && npm run build:renderer",
+    "start": "npm run build && electron .",
+    "dev": "npm run build && electron . --dev",
+    "test": "node tests/run-tests.mjs",
+    "dist:win": "npm run build && electron-builder --win --x64",
+    "dist:portable": "npm run build && electron-builder --win portable --x64"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.5.4"
+  }
+}

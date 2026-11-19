@@ -1,0 +1,371 @@
+/* ============================================================================
+ *  ChronoBox · 设计系统 v5  「Instrument」
+ *  ----------------------------------------------------------------------------
+ *  设计意图：把「文件历史」当成精密仪器来做 —— 降低视觉噪声，提高信息密度，
+ *  让时间、版本、变更这三件事在任何一个界面里都能一眼读出。
+ *
+ *  语义分层：
+ *    --bg-app      画布（最底）
+ *    --bg-sunken   凹陷区（表头、行条纹、轨道）
+ *    --bg-surface  卡片 / 面板
+ *    --bg-subtle   浅层控件底（分段控件、ghost 按钮）
+ *    --bg-hover    悬停态
+ *
+ *  所有旧 token 名 100% 保留，仅升级取值，保证既有代码零改动可用。
+ * ==========================================================================*/
+
+:root {
+  color-scheme: light;
+
+  /* ---- 画布与表面 ---- */
+  --bg-app: #F2F5FA;
+  --bg-sunken: #F8FAFD;
+  --bg-surface: #FFFFFF;
+  --bg-surface-translucent: rgba(255, 255, 255, 0.86);
+  --bg-subtle: #ECF0F7;
+  --bg-hover: #E1E7F1;
+
+  /* ---- 描边 ---- */
+  --border-color: #E4E9F1;
+  --border-strong: #CBD4E2;
+  --border-accent: rgba(37, 99, 235, 0.34);
+
+  /* ---- 文字 ---- */
+  --text-primary: #0D1526;
+  --text-secondary: #46536A;
+  --text-muted: #7E8BA1;
+  --text-on-accent: #FFFFFF;
+
+  /* ---- 品牌主色 ---- */
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-active: #1E40AF;
+  --accent-gradient: linear-gradient(135deg, #2E6BFF 0%, #4F46E5 100%);
+  --accent-soft: rgba(37, 99, 235, 0.10);
+  --accent-soft-strong: rgba(37, 99, 235, 0.17);
+  --accent-ring: rgba(37, 99, 235, 0.26);
+
+  /* ---- 语义色 ---- */
+  --success: #0F9D63;
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --warning: #C77A05;
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --danger: #D93B3B;
+  --danger-soft: rgba(239, 68, 68, 0.11);
+  --info: #2563EB;
+  --info-soft: rgba(37, 99, 235, 0.10);
+
+  /* ---- 三色标签 ---- */
+  --tag-red: #EF4444;
+  --tag-yellow: #F59E0B;
+  --tag-green: #10B981;
+
+  /* ---- 同步状态 ---- */
+  --status-synced: #10B981;
+  --status-dirty: #F59E0B;
+  --status-missing: #EF4444;
+  --status-branch: #8B5CF6;
+
+  /* ---- Diff ---- */
+  --diff-add-bg: rgba(16, 185, 129, 0.12);
+  --diff-add-fg: #067A55;
+  --diff-mod-bg: rgba(37, 99, 235, 0.11);
+  --diff-mod-fg: #1D4ED8;
+  --diff-del-bg: rgba(239, 68, 68, 0.11);
+  --diff-del-fg: #B42318;
+
+  /* ---- 层级阴影 ---- */
+  --shadow-xs: 0 1px 1px rgba(13, 21, 38, 0.04);
+  --shadow-sm: 0 1px 2px rgba(13, 21, 38, 0.05), 0 1px 3px rgba(13, 21, 38, 0.04);
+  --shadow-md: 0 4px 12px rgba(13, 21, 38, 0.07), 0 2px 4px rgba(13, 21, 38, 0.04);
+  --shadow-lg: 0 18px 44px rgba(13, 21, 38, 0.16), 0 6px 14px rgba(13, 21, 38, 0.07);
+  --shadow-accent: 0 4px 14px rgba(37, 99, 235, 0.28);
+
+  /* ---- 圆角 ---- */
+  --radius-xs: 5px;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  /* ---- 间距阶梯 ---- */
+  --sp-1: 4px;
+  --sp-2: 6px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 20px;
+  --sp-7: 26px;
+  --sp-8: 34px;
+
+  /* ---- 字号阶梯 ---- */
+  --fs-2xs: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 19px;
+  --fs-2xl: 23px;
+
+  /* ---- 动效 ---- */
+  --ease-out: cubic-bezier(0.22, 0.9, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --dur-1: 110ms;
+  --dur-2: 180ms;
+  --dur-3: 280ms;
+
+  /* ---- 骨架尺寸 ---- */
+  --topbar-h: 58px;
+  --subbar-h: 50px;
+  --statusbar-h: 26px;
+  --sidebar-w: 264px;
+  --inspector-w: 348px;
+  --focus-ring: 0 0 0 3px var(--accent-ring);
+
+  /* ---- 字体 ---- */
+  --font-sans: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI",
+    "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", "JetBrains Mono", "Consolas", ui-monospace, monospace;
+}
+
+/* ============================ 暗色 ============================ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-app: #0A0F16;
+  --bg-sunken: #0E141D;
+  --bg-surface: #131A24;
+  --bg-surface-translucent: rgba(19, 26, 36, 0.86);
+  --bg-subtle: #1A2230;
+  --bg-hover: #222C3C;
+
+  --border-color: #222C3A;
+  --border-strong: #33415480;
+  --border-accent: rgba(91, 140, 255, 0.42);
+
+  --text-primary: #E9EEF7;
+  --text-secondary: #9BA9BC;
+  --text-muted: #6C7A8D;
+  --text-on-accent: #FFFFFF;
+
+  --accent: #5B8CFF;
+  --accent-hover: #7BA4FF;
+  --accent-active: #4B78E8;
+  --accent-gradient: linear-gradient(135deg, #4E82FF 0%, #7C6CFF 100%);
+  --accent-soft: rgba(91, 140, 255, 0.15);
+  --accent-soft-strong: rgba(91, 140, 255, 0.24);
+  --accent-ring: rgba(91, 140, 255, 0.32);
+
+  --success: #34D399;
+  --success-soft: rgba(52, 211, 153, 0.15);
+  --warning: #FBBF24;
+  --warning-soft: rgba(251, 191, 36, 0.15);
+  --danger: #F87171;
+  --danger-soft: rgba(248, 113, 113, 0.15);
+  --info: #5B8CFF;
+  --info-soft: rgba(91, 140, 255, 0.15);
+
+  --diff-add-bg: rgba(52, 211, 153, 0.15);
+  --diff-add-fg: #6EE7B7;
+  --diff-mod-bg: rgba(91, 140, 255, 0.17);
+  --diff-mod-fg: #A9C4FF;
+  --diff-del-bg: rgba(248, 113, 113, 0.15);
+  --diff-del-fg: #FCA5A5;
+
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.28);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.34);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 22px 52px rgba(0, 0, 0, 0.62);
+  --shadow-accent: 0 4px 16px rgba(91, 140, 255, 0.32);
+}
+
+/* ============================ 春 · 樱芽青 ============================ */
+[data-theme="spring"] {
+  color-scheme: light;
+
+  --bg-app: #F1F9F3;
+  --bg-sunken: #F7FCF8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-translucent: rgba(255, 255, 255, 0.87);
+  --bg-subtle: #E5F4EA;
+  --bg-hover: #D5EEDD;
+  --border-color: #DDEDE3;
+  --border-strong: #B9D9C6;
+  --text-primary: #0F2A1C;
+  --text-secondary: #3A6249;
+  --text-muted: #74977F;
+  --accent: #12924C;
+  --accent-hover: #0C7A3E;
+  --accent-active: #086331;
+  --accent-gradient: linear-gradient(135deg, #14A356 0%, #0E9E7B 100%);
+  --accent-soft: rgba(18, 146, 76, 0.10);
+  --accent-soft-strong: rgba(18, 146, 76, 0.18);
+  --accent-ring: rgba(18, 146, 76, 0.26);
+  --shadow-accent: 0 4px 14px rgba(18, 146, 76, 0.26);
+  --status-synced: #12924C;
+  --border-accent: rgba(18, 146, 76, 0.34);
+}
+
+/* ============================ 夏 · 晴海蓝 ============================ */
+[data-theme="summer"] {
+  color-scheme: light;
+
+  --bg-app: #EDF7FD;
+  --bg-sunken: #F5FBFF;
+  --bg-surface: #FFFFFF;
+  --bg-surface-translucent: rgba(255, 255, 255, 0.87);
+  --bg-subtle: #DFF1FC;
+  --bg-hover: #CCE8F9;
+  --border-color: #DCECF6;
+  --border-strong: #B3D6E9;
+  --text-primary: #08222F;
+  --text-secondary: #2B5A72;
+  --text-muted: #6C93A9;
+  --accent: #0279B8;
+  --accent-hover: #016494;
+  --accent-active: #015078;
+  --accent-gradient: linear-gradient(135deg, #0284C7 0%, #0891B2 100%);
+  --accent-soft: rgba(2, 121, 184, 0.10);
+  --accent-soft-strong: rgba(2, 121, 184, 0.18);
+  --accent-ring: rgba(2, 121, 184, 0.26);
+  --shadow-accent: 0 4px 14px rgba(2, 121, 184, 0.26);
+  --status-synced: #0284C7;
+  --border-accent: rgba(2, 121, 184, 0.34);
+}
+
+/* ============================ 秋 · 暖枫琥珀 ============================ */
+[data-theme="autumn"] {
+  color-scheme: light;
+
+  --bg-app: #FCF6EE;
+  --bg-sunken: #FEFAF4;
+  --bg-surface: #FFFDFA;
+  --bg-surface-translucent: rgba(255, 253, 250, 0.88);
+  --bg-subtle: #F6EADB;
+  --bg-hover: #EDDCC6;
+  --border-color: #F0E2D1;
+  --border-strong: #D8BE9E;
+  --text-primary: #2B1A0E;
+  --text-secondary: #69462E;
+  --text-muted: #A07E66;
+  --accent: #C26A05;
+  --accent-hover: #A15704;
+  --accent-active: #844702;
+  --accent-gradient: linear-gradient(135deg, #D97706 0%, #DC5A28 100%);
+  --accent-soft: rgba(194, 106, 5, 0.11);
+  --accent-soft-strong: rgba(194, 106, 5, 0.19);
+  --accent-ring: rgba(194, 106, 5, 0.26);
+  --shadow-accent: 0 4px 14px rgba(194, 106, 5, 0.26);
+  --status-synced: #15803D;
+  --border-accent: rgba(194, 106, 5, 0.34);
+}
+
+/* ============================ 冬 · 霜雪靛 ============================ */
+[data-theme="winter"] {
+  color-scheme: light;
+
+  --bg-app: #F0F3F9;
+  --bg-sunken: #F7F9FC;
+  --bg-surface: #FCFDFF;
+  --bg-surface-translucent: rgba(252, 253, 255, 0.88);
+  --bg-subtle: #E5EAF4;
+  --bg-hover: #D7DFEE;
+  --border-color: #DFE5EF;
+  --border-strong: #C0CADB;
+  --text-primary: #131B2B;
+  --text-secondary: #43516B;
+  --text-muted: #7F8DA5;
+  --accent: #4A42D6;
+  --accent-hover: #3B34B4;
+  --accent-active: #2F2995;
+  --accent-gradient: linear-gradient(135deg, #4F46E5 0%, #6D5AE8 100%);
+  --accent-soft: rgba(74, 66, 214, 0.11);
+  --accent-soft-strong: rgba(74, 66, 214, 0.19);
+  --accent-ring: rgba(74, 66, 214, 0.26);
+  --shadow-accent: 0 4px 14px rgba(74, 66, 214, 0.26);
+  --status-synced: #4F46E5;
+  --border-accent: rgba(74, 66, 214, 0.34);
+}
+
+/* ============================ 基础重置 ============================ */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 极简细滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 统一焦点可见性 —— 键盘操作必须看得见 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background: var(--accent-soft-strong);
+  color: var(--text-primary);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 尊重系统「减少动画」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

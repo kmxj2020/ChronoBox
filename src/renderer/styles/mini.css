@@ -1,0 +1,350 @@
+html, body.mini-body {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === 无边框纯透明过渡 Mini 悬浮条（移除 backdrop-filter 杜绝 Windows 矩形框） === */
+.mini-bar {
+  width: 348px;
+  height: 48px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.11);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16), 0 1px 3px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 9px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+[data-theme="dark"] .mini-bar {
+  background: #162033;
+  border-color: rgba(148, 163, 184, 0.24);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.mini-bar.drag-over {
+  border: 2px dashed #3B82F6;
+  background: #EFF6FF;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22), 0 8px 18px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .mini-bar.drag-over {
+  background: #1E3A8A;
+}
+
+.mini-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 4px 2px;
+  letter-spacing: -2px;
+}
+
+.mini-drag-handle:active {
+  cursor: grabbing;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pulse-dot.synced {
+  background: var(--status-synced);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.pulse-dot.dirty {
+  background: var(--status-dirty);
+  animation: gentlePulse 1.8s infinite;
+}
+
+.mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-project-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-status-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-radius: 999px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.14s ease;
+}
+
+.mini-btn:hover {
+  background: var(--bg-hover);
+}
+
+.mini-btn.primary {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+
+.mini-btn.primary:hover {
+  filter: brightness(1.06);
+}
+
+/* === 零四方框纯透明悬浮归档球（窗口 96x96，球体 54x54，柔和阴影完全衰减在透明区内） === */
+.mini-dot {
+  width: 96px;
+  height: 96px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.mini-dot:active {
+  cursor: grabbing;
+}
+
+.mini-dot-count {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* 三字状态标签（未跟踪）在 52px 球体里要缩一档字号，否则会撑到边缘 */
+.mini-dot-orb.untracked .mini-dot-count {
+  font-size: 9.5px;
+  letter-spacing: -0.04em;
+}
+
+/* 悬浮球：用「有色光晕 + 内高光 + 柔和投影」三层叠加代替硬白描边，
+   在任意桌面壁纸上都不会出现生硬的白色圆圈。 */
+.mini-dot-orb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.1;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: radial-gradient(135% 135% at 32% 18%, #34d399 0%, #10b981 45%, #047857 100%);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.45) inset,
+    0 -8px 14px rgba(4, 120, 87, 0.45) inset,
+    0 10px 22px -6px rgba(16, 185, 129, 0.6),
+    0 4px 10px rgba(15, 23, 42, 0.14);
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease;
+  will-change: transform;
+}
+
+/* 顶部的高光弧（比旧版更窄、更柔） */
+.mini-dot-orb::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 14px;
+  right: 14px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.mini-dot-orb:hover {
+  transform: scale(1.07);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.5) inset,
+    0 -8px 14px rgba(4, 120, 87, 0.4) inset,
+    0 14px 28px -6px rgba(16, 185, 129, 0.7),
+    0 6px 14px rgba(15, 23, 42, 0.18);
+}
+
+.mini-dot-orb.synced {
+  background: radial-gradient(135% 135% at 32% 18%, #34d399 0%, #10b981 45%, #047857 100%);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.45) inset,
+    0 -8px 14px rgba(4, 120, 87, 0.45) inset,
+    0 10px 22px -6px rgba(16, 185, 129, 0.6),
+    0 4px 10px rgba(15, 23, 42, 0.14);
+}
+
+.mini-dot-orb.dirty {
+  background: radial-gradient(135% 135% at 32% 18%, #fbbf24 0%, #f59e0b 45%, #c2410c 100%);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.5) inset,
+    0 -8px 14px rgba(154, 52, 18, 0.42) inset,
+    0 10px 22px -6px rgba(245, 158, 11, 0.62),
+    0 4px 10px rgba(15, 23, 42, 0.14);
+  animation: gentlePulse 2.2s ease-in-out infinite;
+}
+
+.mini-dot-orb.drag-over {
+  transform: scale(1.12);
+  background: linear-gradient(135deg, #2563EB 0%, #6366F1 100%) !important;
+  border: 2.5px dashed #FFFFFF;
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.34), 0 8px 18px rgba(37, 99, 235, 0.4);
+  animation: none !important;
+  font-size: 11px;
+}
+
+.mini-dot-orb.drop-ok {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
+  transform: scale(1.12);
+  font-size: 11px;
+}
+
+@keyframes gentlePulse {
+  0% {
+    box-shadow:
+      0 1px 1px rgba(255, 255, 255, 0.5) inset,
+      0 -8px 14px rgba(154, 52, 18, 0.42) inset,
+      0 0 0 0 rgba(245, 158, 11, 0.45),
+      0 10px 22px -6px rgba(245, 158, 11, 0.62);
+  }
+  70% {
+    box-shadow:
+      0 1px 1px rgba(255, 255, 255, 0.5) inset,
+      0 -8px 14px rgba(154, 52, 18, 0.42) inset,
+      0 0 0 9px rgba(245, 158, 11, 0),
+      0 10px 22px -6px rgba(245, 158, 11, 0.62);
+  }
+  100% {
+    box-shadow:
+      0 1px 1px rgba(255, 255, 255, 0.5) inset,
+      0 -8px 14px rgba(154, 52, 18, 0.42) inset,
+      0 0 0 0 rgba(245, 158, 11, 0),
+      0 10px 22px -6px rgba(245, 158, 11, 0.62);
+  }
+}
+
+/* === 未跟踪状态：优雅紫色提示（可右击一键加入跟踪） === */
+.pulse-dot.untracked {
+  background: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.24);
+}
+
+.mini-dot-orb.untracked {
+  background: radial-gradient(135% 135% at 32% 18%, #a78bfa 0%, #8b5cf6 45%, #5b21b6 100%);
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.5) inset,
+    0 -8px 14px rgba(76, 29, 149, 0.45) inset,
+    0 10px 22px -6px rgba(139, 92, 246, 0.62),
+    0 4px 10px rgba(15, 23, 42, 0.14);
+}
+
+/* === 贴边自动变形：半圆贴边胶囊耳 ===
+   旧版是一个被窗口裁掉一半的圆（边缘会突然断掉），这里改成真正的半圆胶囊：
+   贴边一侧是平直的、朝屏幕内一侧是圆角，宽度收窄到 22px，像屏幕边缘的一个小把手。 */
+.mini-dot-orb.dock-left,
+.mini-dot-orb.dock-right {
+  width: 22px;
+  height: 46px;
+  opacity: 0.92;
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.35) inset,
+    0 4px 12px -4px rgba(15, 23, 42, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.28) inset;
+  transition: width 0.26s cubic-bezier(0.34, 1.3, 0.64, 1), height 0.26s cubic-bezier(0.34, 1.3, 0.64, 1),
+    border-radius 0.26s ease, transform 0.26s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s ease;
+}
+
+.mini-dot-orb.dock-left {
+  border-radius: 0 23px 23px 0;
+  border-left: none;
+  transform: translateX(-22px);
+}
+
+.mini-dot-orb.dock-right {
+  border-radius: 23px 0 0 23px;
+  border-right: none;
+  transform: translateX(22px);
+}
+
+.mini-dot-orb.dock-left::after,
+.mini-dot-orb.dock-right::after {
+  display: none;
+}
+
+/* 贴边时文字竖排显示为一个状态点，不塞文字 */
+.mini-dot-orb.dock-left .mini-dot-count,
+.mini-dot-orb.dock-right .mini-dot-count {
+  font-size: 9px;
+  opacity: 0.9;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+  transform: translateX(-1px);
+}
+
+.mini-dot-orb.dock-right .mini-dot-count {
+  transform: translateX(1px);
+}
+
+/* 悬停/拖入时顺滑弹回完整圆球 */
+.mini-dot-orb.dock-left:hover,
+.mini-dot-orb.dock-right:hover,
+.mini-dot-orb.dock-left.drag-over,
+.mini-dot-orb.dock-right.drag-over {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  transform: translateX(0);
+  opacity: 1;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.mini-dot-orb.dock-left:hover .mini-dot-count,
+.mini-dot-orb.dock-right:hover .mini-dot-count {
+  writing-mode: horizontal-tb;
+  font-size: 12px;
+  letter-spacing: 0;
+  transform: none;
+  opacity: 1;
+}

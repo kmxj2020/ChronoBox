@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;" />
+  <title>时匣 ChronoBox 5.1.1 — 本地文件历史与视觉快照</title>
+  <link rel="stylesheet" href="./styles/tokens.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <!-- 左侧项目栏 -->
+    <aside id="leftSidebar" class="sidebar">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="34" height="34" fill="none">
+            <rect width="36" height="36" rx="10" fill="url(#brandGrad)" />
+            <rect x="7" y="7" width="16" height="14" rx="4" fill="#fff" fill-opacity="0.28" />
+            <rect x="10" y="10" width="19" height="16" rx="4.5" fill="#fff" fill-opacity="0.96" />
+            <path d="M14 16h11" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19 16c2 0 2 5 6 5" stroke="#10B981" stroke-width="1.9" stroke-linecap="round"/>
+            <circle cx="14" cy="16" r="2" fill="#2563EB"/>
+            <circle cx="25" cy="16" r="2" fill="#2563EB"/>
+            <circle cx="25" cy="21" r="2" fill="#10B981"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1D4ED8"/>
+                <stop offset="0.55" stop-color="#3B82F6"/>
+                <stop offset="1" stop-color="#6366F1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name" data-i18n="appName">时匣 ChronoBox</span>
+          <span class="brand-sub" data-i18n="appTagline">本地文件时间盒与视觉快照</span>
+        </div>
+      </div>
+
+      <div class="sidebar-action">
+        <button id="btnAddProject" class="btn btn-primary btn-block">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="addFolder">添加项目</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section-title" data-i18n="trackedFolders">项目列表</div>
+      <div id="projectList" class="project-list" role="list"></div>
+      <div id="archivedProjectsSection" class="archived-projects-section hidden">
+        <div class="sidebar-section-title" style="padding-top:10px;">已归档项目（暂停跟踪）</div>
+        <div id="archivedProjectList" class="archived-project-list"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="mini-mode-group">
+          <button id="btnMiniBar" class="btn btn-ghost btn-sm" title="开启并切换为 Mini 悬浮条（不隐藏主窗口）">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><circle cx="8" cy="12" r="1.5" fill="currentColor"/></svg>
+            <span data-i18n="miniBar">Mini 条</span>
+          </button>
+          <button id="btnMiniDot" class="btn btn-ghost btn-sm" title="开启并切换为桌面悬浮归档球（不隐藏主窗口）">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+            <span data-i18n="miniDot">悬浮球</span>
+          </button>
+        </div>
+        <div class="footer-toggles">
+          <button id="btnToggleLang" class="btn btn-icon" title="中 / English">中 / EN</button>
+          <button id="btnToggleTheme" class="btn btn-icon" title="切换浅色/深色主题">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="sidebarResizer" class="pane-resizer" role="separator" aria-orientation="vertical" title="拖动调整项目栏宽度，双击复位"></div>
+
+    <!-- 中间主工作区 -->
+    <main class="main-area">
+      <!-- 空状态引导 -->
+      <section id="emptyState" class="empty-state hidden">
+        <div class="empty-card">
+          <div class="empty-orb">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6M6 9v3a6 6 0 0 0 6 6h3"/></svg>
+          </div>
+          <h2 data-i18n="welcomeTitle">让文件历史管理从未如此轻松</h2>
+          <p data-i18n="welcomeDesc">选择一个项目文件夹，开启本地增量时间盒子与 00【Archive】悬浮归档球。无论是论文稿件、实验数据还是工程图纸，都能随时存档、清晰对比、一键回溯。</p>
+          <button id="btnEmptyAdd" class="btn btn-primary btn-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="addFirstFolder">添加第一个项目</span>
+          </button>
+          <div class="feature-pills">
+            <span class="pill">本地增量存储</span>
+            <span class="pill">一键存档/回溯</span>
+            <span class="pill">思维导图关系视图</span>
+            <span class="pill">00【Archive】悬浮归档球</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 项目活动视图 -->
+      <section id="workspaceShell" class="workspace-shell hidden">
+        <header class="topbar">
+          <div class="topbar-left" style="display:flex;align-items:center;gap:10px;">
+            <button id="btnToggleLeftSidebar" class="btn btn-icon pane-toggle-btn active" title="折叠 / 展开左侧项目栏 (Ctrl+\)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </button>
+            <div style="min-width:0;">
+            <div class="project-title-row">
+              <h1 id="activeProjectName" class="project-title"></h1>
+              <span id="statusBadge" class="status-badge synced"></span>
+            </div>
+            <button id="activeProjectPath" class="project-path-btn" title="点击在资源管理器中打开"></button>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <button id="btnGlobalSearch" class="btn btn-ghost btn-sm" title="跨项目全局检索与时效命令面板 (Ctrl+K)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span data-i18n="search">检索</span>
+              <span class="kbd-hint">Ctrl K</span>
+            </button>
+            <div class="topbar-icon-group">
+              <button id="btnTopMiniOrb" class="btn btn-icon" title="开启或关闭桌面悬浮窗（独立于主窗口，后台也保持显示）">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+                <span id="lblTopFloatingToggle" class="visually-hidden"></span>
+              </button>
+              <button id="btnRefresh" class="btn btn-icon" title="立即重新扫描 (F5)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                <span class="visually-hidden" data-i18n="refresh">刷新</span>
+              </button>
+              <button id="btnFocusWorkspace" class="btn btn-icon pane-toggle-btn" title="专注模式：隐藏左右两侧栏 (Ctrl+Shift+F)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+              <button id="btnToggleRightInspector" class="btn btn-icon pane-toggle-btn active" title="折叠 / 展开右侧详情栏 (Ctrl+Shift+\)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+              </button>
+            </div>
+            <span class="topbar-sep"></span>
+            <button id="btnQuickArchive" class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3z"/></svg>
+              <span data-i18n="oneClickArchive">一键存档</span>
+              <span class="kbd-hint">Ctrl+Shift+S</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- 视图切换导航与标签筛选 -->
+        <div class="subbar">
+          <nav class="view-tabs" role="tablist">
+            <button class="view-tab active" data-view="matrix" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+              <span>表格视图</span>
+            </button>
+            <button class="view-tab" data-view="graph" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6M6 9v3a6 6 0 0 0 6 6h3"/></svg>
+              <span data-i18n="viewGraph">关系视图</span>
+            </button>
+            <button class="view-tab" data-view="timeline" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+              <span data-i18n="viewTimeline">时间轴</span>
+            </button>
+            <button class="view-tab" data-view="browser" role="tab" title="文件浏览器：像资源管理器一样浏览、重命名、移动、复制、删除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>文件</span>
+            </button>
+            <button class="view-tab" data-view="diff" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M8 21H3v-5"/><path d="M21 3l-7 7M3 21l7-7"/></svg>
+              <span data-i18n="viewDiff">存档对比</span>
+            </button>
+            <button class="view-tab" data-view="archivebox" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 14h4"/></svg>
+              <span>00【Archive】</span>
+            </button>
+            <button class="view-tab" data-view="settings" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span data-i18n="viewSettings">设置</span>
+            </button>
+          </nav>
+
+          <div id="filterBar" class="filter-bar hidden">
+            <div class="tag-filters" aria-label="标签筛选">
+              <button class="tag-filter-btn active" data-tag="" data-i18n="allTags">全部</button>
+              <button class="tag-filter-btn" data-tag="red" title="红色标签 · 重要"><span class="tag-dot red"></span></button>
+              <button class="tag-filter-btn" data-tag="yellow" title="黄色标签 · 待定"><span class="tag-dot yellow"></span></button>
+              <button class="tag-filter-btn" data-tag="green" title="绿色标签 · 定稿"><span class="tag-dot green"></span></button>
+            </div>
+            <input id="searchInput" type="search" class="search-input" placeholder="搜索存档标题、备注或文件名..." />
+          </div>
+        </div>
+
+        <!-- 主体双栏（视图区 + 右侧详情栏） -->
+        <div class="content-body">
+          <div class="primary-pane">
+            <!-- 1. 时间轴视图 -->
+            <div id="viewTimeline" class="view-panel">
+              <div id="workingChangesCard" class="working-card hidden"></div>
+              <div id="timelineList" class="timeline-list"></div>
+            </div>
+
+            <!-- 1.5 文件浏览器（资源管理器视图） -->
+            <div id="viewBrowser" class="view-panel" style="padding:0;overflow:hidden;">
+              <div id="browserContainer" class="browser-shell"></div>
+            </div>
+
+            <!-- 2. 关系视图（思维导图 DAG） -->
+            <div id="viewGraph" class="view-panel">
+              <div class="graph-toolbar">
+                <span class="graph-hint" data-i18n="graphHint">拖拽画布平移 · 滚轮缩放 · 单击检视 / 双击直接切换存档</span>
+                <div class="graph-controls">
+                  <button id="btnZoomOut" class="btn btn-ghost btn-sm">−</button>
+                  <span id="zoomLabel" class="zoom-label">100%</span>
+                  <button id="btnZoomIn" class="btn btn-ghost btn-sm">+</button>
+                  <button id="btnZoomReset" class="btn btn-ghost btn-sm" data-i18n="resetView">适配</button>
+                </div>
+              </div>
+              <div id="graphCanvasWrap" class="graph-canvas-wrap">
+                <svg id="graphSvg" class="graph-svg"></svg>
+              </div>
+            </div>
+
+            <!-- 2.5 文件级演进表格视图 -->
+            <div id="viewMatrix" class="view-panel active" style="padding:0;overflow:hidden;">
+              <div id="matrixContainer" class="matrix-shell"></div>
+            </div>
+
+            <!-- 3. 差异对比视图 -->
+            <div id="viewDiff" class="view-panel">
+              <div class="diff-controls">
+                <div class="diff-select-group">
+                  <label data-i18n="diffFrom">基准版本</label>
+                  <div id="diffFromSelect" class="cselect-host"></div>
+                </div>
+                <button id="btnSwapDiff" class="btn btn-ghost btn-sm" title="交换对比方向">⇄</button>
+                <div class="diff-select-group">
+                  <label data-i18n="diffTo">对比版本</label>
+                  <div id="diffToSelect" class="cselect-host"></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                <div id="diffSummaryBar" class="diff-summary-bar" style="margin-bottom:0;flex:1;"></div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                  <button id="btnBcCompareFile" class="btn btn-primary btn-sm" title="用 Beyond Compare 深度对比左侧选中的单个文件（支持 Word/Excel/PDF/图片/代码）">⇄ BC 对比选中文件</button>
+                  <button id="btnBcCompareFolder" class="btn btn-ghost btn-sm" title="用 Beyond Compare 对比这两个版本的整个文件夹">⇄ BC 对比整目录</button>
+                </div>
+              </div>
+              <div id="diffVisualCompare" class="diff-visual-compare hidden"></div>
+              <div class="diff-split">
+                <div id="diffFileList" class="diff-file-list"></div>
+                <div id="diffCodeViewer" class="diff-code-viewer"></div>
+              </div>
+            </div>
+
+            <!-- 4. 00【Archive】可视化归档箱 -->
+            <div id="viewArchiveBox" class="view-panel">
+              <div id="archiveBoxContainer" class="settings-container" style="max-width:780px;"></div>
+            </div>
+
+            <!-- 5. 空间统计与项目设置 -->
+            <div id="viewSettings" class="view-panel">
+              <div id="settingsContainer" class="settings-container settings-wrap"></div>
+            </div>
+          </div>
+
+          <div id="inspectorResizer" class="pane-resizer" role="separator" aria-orientation="vertical" title="拖动调整详情栏宽度，双击复位"></div>
+
+          <!-- 右侧存档详情检视器 -->
+          <aside id="inspectorPane" class="inspector-pane">
+            <div id="inspectorContent" class="inspector-content"></div>
+          </aside>
+        </div>
+
+        <!-- 底部状态栏 -->
+        <footer class="statusbar" id="statusBar">
+          <div class="statusbar-left">
+            <span class="sb-item" id="sbState">
+              <span class="sb-dot" id="sbDot"></span>
+              <strong>已同步</strong>
+            </span>
+            <span class="sb-sep"></span>
+            <span class="sb-item" id="sbFiles">—</span>
+            <span class="sb-sep"></span>
+            <span class="sb-item" id="sbArchives">—</span>
+            <span class="sb-sep"></span>
+            <span class="sb-item" id="sbStorage">—</span>
+          </div>
+          <div class="statusbar-right">
+            <span class="sb-item" id="sbAutoArchive">自动存档：关</span>
+            <span class="sb-sep"></span>
+            <button class="sb-link" id="sbShortcuts" title="查看全部键盘快捷键">快捷键 <span class="kbd">?</span></button>
+            <span class="sb-sep"></span>
+            <span class="sb-item" id="sbVersion">v5.1.1</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- 存档弹窗 -->
+  <div id="archiveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 data-i18n="createArchiveTitle">创建新存档（时间盒子）</h3>
+        <button id="btnCloseArchiveModal" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalChangesPreview" class="modal-changes-preview"></div>
+        <label class="field-label" for="archiveTitleInput" data-i18n="archiveTitleLabel">存档说明（留空将自动生成）</label>
+        <input id="archiveTitleInput" type="text" class="text-input" placeholder="例如：完成第三章排版定稿 / 修改底座结构参数" />
+
+        <label class="field-label" for="archiveNoteInput" data-i18n="archiveNoteLabel">详细备注（可选）</label>
+        <textarea id="archiveNoteInput" class="textarea-input" rows="3" placeholder="记录本次修改的关键思路或待办事项..."></textarea>
+
+        <div class="field-label" data-i18n="archiveTagLabel">颜色标签（极简三选）</div>
+        <input id="archiveCustomTagsInput" type="text" class="text-input" placeholder="自定义文字标签（用逗号分隔，如：定稿, 导师审阅, Origin图）" />
+        <div id="modalTagPicker" class="tag-picker">
+          <button type="button" class="tag-choice" data-color="red"><span class="tag-dot red"></span> 红色 · 重要里程碑</button>
+          <button type="button" class="tag-choice" data-color="yellow"><span class="tag-dot yellow"></span> 黄色 · 待定方案</button>
+          <button type="button" class="tag-choice" data-color="green"><span class="tag-dot green"></span> 绿色 · 已定稿</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelArchive" class="btn btn-ghost" data-i18n="cancel">取消</button>
+        <button id="btnConfirmArchive" class="btn btn-primary" data-i18n="confirmArchive">立即存档</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 切换存档确认弹窗 -->
+  <div id="switchModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 data-i18n="switchArchiveTitle">切换并恢复到历史存档</h3>
+        <button id="btnCloseSwitchModal" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="switchModalDesc" class="modal-desc" style="margin:0 0 8px;line-height:1.6;"></p>
+        <div class="restore-mode-group">
+          <label class="restore-mode-card">
+            <input type="radio" name="restoreMode" value="overwrite" checked />
+            <div>
+              <strong>方式一：覆盖恢复到当前工作文件夹</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">将当前文件夹整体切换回该历史时刻（所有版本均安全保存在时间盒中，切换前自动检测 Word/Origin 文件占用锁）。</div>
+            </div>
+          </label>
+          <label class="restore-mode-card">
+            <input type="radio" name="restoreMode" value="new-folder" />
+            <div>
+              <strong>方式二：恢复到全新独立文件夹</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">自动在同级目录新建独立副本文件夹，不影响当前正在编辑的文件，方便直接打开对照。</div>
+            </div>
+          </label>
+        </div>
+        <label id="switchBackupOption" class="checkbox-row hidden" style="margin-top:6px;">
+          <input id="chkAutoBackup" type="checkbox" checked />
+          <span>覆盖前若当前有未存档修改，先自动创建一个保护存档（防止丢失当前改动）</span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelSwitch" class="btn btn-ghost" data-i18n="cancel">取消</button>
+        <button id="btnConfirmSwitch" class="btn btn-primary" data-i18n="confirmSwitch">确认恢复</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 项目结项导出弹窗 -->
+  <div id="exportBundleModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:540px;">
+      <div class="modal-header">
+        <h3>结项导出（打包最终版与全部历史）</h3>
+        <button id="btnCloseExportBundle" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="exportBundleDesc" class="modal-desc" style="margin:0 0 10px;line-height:1.6;"></p>
+        <div class="field-label" style="margin-bottom:6px;">历史版本展开方式（无论选哪项，都会完整保留 .chronobox 压缩历史库及恢复凭证）</div>
+        <div class="restore-mode-group">
+          <label class="restore-mode-card">
+            <input type="radio" name="bundleHistoryScope" value="current-branch" checked />
+            <div>
+              <strong>仅展开当前分支历史（推荐）</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">将「01_最终版本」与当前主线的历史版本逐个展开到「02_历史版本」，脱离软件也能直接打开看。</div>
+            </div>
+          </label>
+          <label class="restore-mode-card">
+            <input type="radio" name="bundleHistoryScope" value="all" />
+            <div>
+              <strong>展开全部历史版本（含所有旁支）</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">将所有时间盒子全部展开为原生文件夹，适合需要完整审计留档的项目。</div>
+            </div>
+          </label>
+          <label class="restore-mode-card">
+            <input type="radio" name="bundleHistoryScope" value="compressed-only" />
+            <div>
+              <strong>仅保留 .chronobox 压缩历史库（体积最小）</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">只展开「01_最终版本」，历史记录以去重压缩库保存，日后可通过「加载结项包」一键无损续上。</div>
+            </div>
+          </label>
+        </div>
+        <label class="checkbox-row" style="margin-top:10px;">
+          <input id="chkBundleAutoArchive" type="checkbox" checked />
+          <span>导出前若有未存档修改，自动创建「结项最终定稿」存档</span>
+        </label>
+        <label class="checkbox-row" style="margin-top:6px;">
+          <input id="chkBundleSoftArchive" type="checkbox" />
+          <span>导出完成后，将原项目移入「已归档项目」暂停后台跟踪</span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelExportBundle" class="btn btn-ghost">取消</button>
+        <button id="btnConfirmExportBundle" class="btn btn-primary">选择导出位置并打包...</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 父子项目嵌套处理双选弹窗 -->
+  <div id="nestedUpgradeModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:520px;">
+      <div class="modal-header">
+        <h3>检测到内部已有子项目，请选择管理方式</h3>
+        <button id="btnCloseNestedModal" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="nestedModalDesc" class="modal-desc" style="margin:0 0 10px;line-height:1.6;"></p>
+        <div class="restore-mode-group">
+          <label class="restore-mode-card">
+            <input type="radio" name="nestedMode" value="exclude" checked />
+            <div>
+              <strong>方式一：独立管理（添加父项目，自动排除子项目）</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">一个项目管一个目录，互不干扰。子项目保持独立，其文件变化不会出现在父项目中（自动写入父项目忽略规则，后续可在设置调整）。</div>
+            </div>
+          </label>
+          <label class="restore-mode-card">
+            <input type="radio" name="nestedMode" value="include" />
+            <div>
+              <strong>方式二：升级合并为父级项目（包含子文件夹）</strong>
+              <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">将内部子项目软归档以暂停重复监听（原有历史 100% 保留），由父项目统一管理全部文件。</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelNested" class="btn btn-ghost">取消</button>
+        <button id="btnConfirmNested" class="btn btn-primary">确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用内联确认弹窗 -->
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">确认操作</h3>
+        <button id="btnCloseConfirmModal" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage" class="modal-desc" style="margin:0;line-height:1.6;"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelConfirm" class="btn btn-ghost">取消</button>
+        <button id="btnOkConfirm" class="btn btn-danger">确认</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 项目重命名与标签管理弹窗 -->
+  <div id="projectEditModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>编辑项目（名称与标签）</h3>
+        <button id="btnCloseProjectEdit" class="btn btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field-label" for="inpEditProjectName">左侧栏显示名称</label>
+        <input id="inpEditProjectName" type="text" class="text-input" placeholder="例如：博士论文第三章 / 实验数据汇总" />
+
+        <label class="checkbox-row" style="margin-top:4px;">
+          <input id="chkSyncDiskRename" type="checkbox" />
+          <span>同步重命名电脑磁盘上的实际文件夹名称（可选；不勾选则仅修改软件内显示名）</span>
+        </label>
+
+        <label class="field-label" for="inpEditProjectTags" style="margin-top:6px;">自定义文字标签（逗号分隔，便于快速识别）</label>
+        <input id="inpEditProjectTags" type="text" class="text-input" placeholder="例如：论文, 进行中, 重要" />
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelProjectEdit" class="btn btn-ghost">取消</button>
+        <button id="btnSaveProjectEdit" class="btn btn-primary">保存修改</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 详细使用说明书弹窗 -->
+  <div id="manualModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:740px;max-height:84vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <h3>关于时匣与使用说明书</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="btnModalOpenMd" class="btn btn-ghost btn-sm">打开 Markdown 原文件</button>
+          <button id="btnCloseManualModal" class="btn btn-icon">✕</button>
+        </div>
+      </div>
+      <div class="modal-body manual-block" style="overflow-y:auto;padding:18px 22px;">
+        <h4>一、三层本地历史保护（临时历史 + 时间盒子 + 00【Archive】）</h4>
+        <ul>
+          <li><strong>临时历史文件（未存档草稿）</strong>：两次正式存档之间，每次保存/修改/重命名文件都会在后台自动留存临时快照。在「表格视图」单击文件名或最右侧「实时（未存档）」方格，右侧栏即显示第 1、2、3… 次修改记录并支持一键回退；点击正式存档后自动清空。</li>
+          <li><strong>时间盒子（正式快照）</strong>：存放在项目内隐藏目录 <code>.chronobox/</code>，采用 SHA-256 增量去重压缩，支持随时切换回溯、分支探索与差异对比。</li>
+          <li><strong>00【Archive】归档箱</strong>：存放在项目内可见目录 <code>00【Archive】/YYYY-MM-DD/</code>，100% 保留原生格式与结构，拖入桌面悬浮球即可收走旧文件（按住 <code>Ctrl</code> 为复制留档），支持一键放回原位。</li>
+        </ul>
+        <h4>二、表格视图（默认首页 · 文件级追踪）</h4>
+        <ul>
+          <li>每文件占一行，重命名文件自动保持在同一行追踪；自动联动 <code>00【Archive】</code> 区分「已归档」与「直接删除」；默认开启「仅看当前分支」排除旁支干扰。</li>
+          <li>视口精准展示 6 个版本列：普通滚轮上下浏览文件，<strong>按住 Shift + 滚轮</strong>左右平滑查看历史版本；文件变更后自动滚到最右侧「实时（未存档）」列，并支持「跳到最新 →」。</li>
+          <li><strong>直接编辑文档</strong>：<strong>双击左侧文件名</strong>直接用系统默认软件打开编辑；<strong>右键文件名</strong>可打开文档、在资源管理器中定位或置顶关注。</li>
+        </ul>
+        <h4>三、桌面悬浮球 / Mini 条（独立常驻 + 三色实时感知）</h4>
+        <ul>
+          <li><strong>独立开关</strong>：开启「悬浮窗」后与主窗口互不冲突，后台也能常驻显示；悬停精简展示最多 3 行信息（项目名、状态、当前文档/目录）。</li>
+          <li><strong>三色感知（250ms 极速刷新）</strong>：<strong>绿色</strong> = 已添加且已存档同步；<strong>橙色</strong> = 有未存档变更或待创建首个存档；<strong>紫色</strong> = 当前文件夹/桌面/文档未添加为项目。</li>
+          <li><strong>防误触操作</strong>：双击悬浮球仅对已添加项目一键存档（紫色未添加状态禁用双击自动添加）；右键悬浮球可将当前文件夹添加为项目、存档、打开主窗或隐藏悬浮窗。</li>
+        </ul>
+        <h4>四、项目安全管理与恢复模式</h4>
+        <ul>
+          <li><strong>父子项目双选保护</strong>：添加含现有子项目的父文件夹时，弹窗可选「独立管理（自动排除子项目，互不干扰）」或「升级合并为父级项目（软归档子项目保留历史）」。</li>
+          <li><strong>外部重命名无损重连</strong>：同级目录下重命名文件夹会自动通过仓库 <code>repoId</code> 无损重连；跨盘移动可一键「重新定位项目文件夹」。</li>
+          <li><strong>双模式恢复与防错</strong>：默认「覆盖恢复到当前工作文件夹」（切换前自动检测 Word/Origin 写锁并保护未存档修改），也支持「恢复到全新独立文件夹」对照查看；支持一键拉起 <strong>Beyond Compare</strong> 深度对比。</li>
+        </ul>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;align-items:center;">
+        <span style="font-size:11.5px;color:var(--text-muted);">作者：Mika · Copyright © 2026 Mika. All Rights Reserved.</span>
+        <button id="btnOkManualModal" class="btn btn-primary">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 跨项目全局检索与效率命令面板 (Ctrl+K) -->
+  <div id="globalSearchModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:620px;max-height:78vh;display:flex;flex-direction:column;">
+      <div class="modal-header" style="padding:12px 16px;">
+        <input id="inpGlobalSearch" type="search" class="text-input" style="flex:1;font-size:14px;border:none;background:transparent;padding:4px 0;box-shadow:none;" placeholder="跨项目秒搜文件名、存档标题、备注或标签... (按 Esc 关闭)" />
+        <button id="btnCloseGlobalSearch" class="btn btn-icon">✕</button>
+      </div>
+      <div class="gs-filter-bar" id="gsFilterBar">
+        <button class="gs-filter-pill active" data-gs-kind="all">全部</button>
+        <button class="gs-filter-pill" data-gs-kind="file">文件</button>
+        <button class="gs-filter-pill" data-gs-kind="archive">存档</button>
+        <button class="gs-filter-pill" data-gs-kind="project">项目</button>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);align-self:center;">↑↓ 选择 · Enter 跳转</span>
+      </div>
+      <div id="globalSearchResults" class="modal-body" style="overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;max-height:56vh;"></div>
+    </div>
+  </div>
+
+  <!-- 项目周报 / 科研进展可视化看板弹窗 -->
+  <div id="progressReportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:880px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <h3>📊 项目周报 / 进展可视化看板</h3>
+        <button id="btnCloseProgressReport" class="btn btn-icon">✕</button>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--border-color);">
+        <select id="selReportPeriod" class="select-input">
+          <option value="7" selected>近 7 天（项目周报）</option>
+          <option value="1">今日（工作日报）</option>
+          <option value="30">近 30 天（项目月报）</option>
+          <option value="0">全部历史汇总</option>
+        </select>
+        <select id="selReportScope" class="select-input">
+          <option value="current" selected>仅当前项目</option>
+          <option value="all">汇总全部活跃项目</option>
+        </select>
+        <div style="display:inline-flex;background:var(--bg-subtle);padding:3px;border-radius:8px;gap:4px;">
+          <button id="btnReportModeVisual" class="btn btn-primary btn-sm" style="padding:3px 10px;font-size:11.5px;">可视化图表</button>
+          <button id="btnReportModeRaw" class="btn btn-ghost btn-sm" style="padding:3px 10px;font-size:11.5px;">Markdown 源码</button>
+        </div>
+        <span id="lblReportStats" style="font-size:12px;color:var(--text-secondary);margin-left:auto;"></span>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;flex:1;padding:16px 18px;">
+        <div id="reportVisualBody"></div>
+        <textarea id="txtReportMarkdown" class="textarea-input hidden" rows="18" style="width:100%;font-family:var(--font-mono);font-size:12px;line-height:1.65;resize:vertical;"></textarea>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;align-items:center;">
+        <span style="font-size:11.5px;color:var(--text-muted);">提示：点击复制或导出将输出完整 Markdown 汇报文本，方便直接粘贴到周报或飞书/Notion</span>
+        <div style="display:flex;gap:8px;">
+          <button id="btnCopyReportMd" class="btn btn-ghost">复制 Markdown</button>
+          <button id="btnExportReportMd" class="btn btn-primary">导出为 .md 文件...</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重复大文件体检弹窗 -->
+  <div id="duplicateFilesModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:680px;max-height:82vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <h3>🧹 相似 / 重复大文件体检（SHA-256 精确比对）</h3>
+        <button id="btnCloseDuplicateModal" class="btn btn-icon">✕</button>
+      </div>
+      <div id="duplicateSummaryBar" style="padding:10px 18px;font-size:12.5px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);"></div>
+      <div id="duplicateListBody" class="modal-body" style="overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button id="btnBatchArchiveDuplicates" class="btn btn-ghost hidden">📦 一键批量瘦身（每组保留第 1 份，其余移入归档箱）</button>
+        <button id="btnOkDuplicateModal" class="btn btn-primary">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 单文件里程碑对比时间线弹窗 -->
+  <div id="fileMilestonesModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:660px;max-height:82vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <h3 id="fileMilestonesTitle">📜 单文件里程碑时间线</h3>
+        <button id="btnCloseFileMilestones" class="btn btn-icon">✕</button>
+      </div>
+      <div style="padding:8px 18px;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">
+        仅列出该文件真正发生变化的里程碑版本；任选「基准 (A)」与「目标 (B)」即可一键软件内对比或直接拉起 Beyond Compare。
+      </div>
+      <div id="fileMilestonesList" class="modal-body" style="overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+      <div class="modal-footer">
+        <button id="btnMilestoneInnerDiff" class="btn btn-ghost">🔍 软件内对比 (A vs B)</button>
+        <button id="btnMilestoneBcDiff" class="btn btn-primary">🔀 Beyond Compare 对比 (A vs B)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用输入弹窗（新建文件夹 / 重命名 / 移入目录） -->
+  <div id="inputModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:420px;">
+      <div class="modal-header">
+        <h3 id="inputModalTitle">请输入</h3>
+        <button id="btnCloseInputModal" class="btn btn-icon" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field-label" id="inputModalLabel" for="inputModalField">名称</label>
+        <input id="inputModalField" class="text-input" style="width:100%;" />
+        <div id="inputModalSelectWrap" class="hidden">
+          <label class="field-label" style="display:block;margin:4px 0;" for="inputModalSelect">目标文件夹</label>
+          <select id="inputModalSelect" class="select-input" style="width:100%;"></select>
+        </div>
+        <div id="inputModalHint" class="inspector-sub"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelInputModal" class="btn btn-ghost">取消</button>
+        <button id="btnOkInputModal" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 键盘快捷键速查表 -->
+  <div id="shortcutsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="width:660px;">
+      <div class="modal-header">
+        <h3>键盘快捷键</h3>
+        <button id="btnCloseShortcuts" class="btn btn-icon" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-grid">
+          <div class="shortcut-group-title">导航</div>
+          <div class="shortcut-row"><span>命令面板 / 全局检索</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">K</span></span></div>
+          <div class="shortcut-row"><span>切换视图（表格 / 关系 / 时间轴 / 对比 / 归档 / 设置）</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">1</span><span class="kbd">…</span><span class="kbd">6</span></span></div>
+          <div class="shortcut-row"><span>折叠 / 展开左侧项目栏</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">\</span></span></div>
+          <div class="shortcut-row"><span>折叠 / 展开右侧详情栏</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">\</span></span></div>
+          <div class="shortcut-row"><span>专注模式（隐藏两侧栏）</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">F</span></span></div>
+
+          <div class="shortcut-group-title">操作</div>
+          <div class="shortcut-row"><span>一键存档当前项目</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">S</span></span></div>
+          <div class="shortcut-row"><span>显示 / 隐藏桌面悬浮窗</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">M</span></span></div>
+          <div class="shortcut-row"><span>重新扫描当前项目</span><span class="shortcut-keys"><span class="kbd">F5</span></span></div>
+          <div class="shortcut-row"><span>切换下一个主题</span><span class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">T</span></span></div>
+          <div class="shortcut-row"><span>关闭当前弹窗 / 面板</span><span class="shortcut-keys"><span class="kbd">Esc</span></span></div>
+          <div class="shortcut-row"><span>打开本快捷键表</span><span class="shortcut-keys"><span class="kbd">?</span></span></div>
+
+          <div class="shortcut-group-title">表格视图</div>
+          <div class="shortcut-row"><span>左右浏览历史版本</span><span class="shortcut-keys"><span class="kbd">Shift</span><span class="kbd">滚轮</span></span></div>
+          <div class="shortcut-row"><span>双击文件名</span><span class="shortcut-keys"><span class="kbd">用默认程序打开编辑</span></span></div>
+          <div class="shortcut-row"><span>右键文件名</span><span class="shortcut-keys"><span class="kbd">更多操作</span></span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnOkShortcuts" class="btn btn-primary">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 通知容器 -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script type="module" src="./scripts/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+release/
+
+# 本地开发缓存（截图、备份）
+_shots/
+_backup/
+
+# 日志与系统文件
+*.log
+.DS_Store
+Thumbs.db

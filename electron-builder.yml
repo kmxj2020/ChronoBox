@@ -1,0 +1,30 @@
+appId: com.chronobox.desktop.win
+productName: 时匣ChronoBox
+copyright: Copyright © 2026 Mika. All Rights Reserved.
+directories:
+  output: release
+  buildResources: assets
+files:
+  - dist/**/*
+  - assets/**/*
+  - 使用说明书.md
+  - package.json
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: assets/icon.ico
+  artifactName: "${productName}-${version}-${arch}-Setup.${ext}"
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 时匣ChronoBox
+  language: "2052"
+portable:
+  artifactName: "${productName}-${version}-Portable.${ext}"

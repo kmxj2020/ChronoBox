@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>时匣 ChronoBox Mini 悬浮归档球</title>
+  <link rel="stylesheet" href="./styles/tokens.css" />
+  <link rel="stylesheet" href="./styles/mini.css" />
+</head>
+<body class="mini-body">
+  <!-- Mini 悬浮条模式 -->
+  <div id="miniBar" class="mini-bar hidden">
+    <div id="miniBarDrag" class="mini-drag-handle" title="按住拖动">⋮⋮</div>
+    <div id="miniStatusDot" class="pulse-dot synced"></div>
+    <div class="mini-info">
+      <div id="miniProjectName" class="mini-project-name">未选择项目</div>
+      <div id="miniStatusText" class="mini-status-text">拖入文件归档至 00【Archive】</div>
+    </div>
+    <div class="mini-actions">
+      <button id="btnMiniQuickArchive" class="mini-btn primary" title="一键时间盒子存档">存档</button>
+      <button id="btnToDot" class="mini-btn" title="切换为悬浮归档球">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+      </button>
+      <button id="btnToFull" class="mini-btn" title="恢复完整主窗口">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mini 悬浮归档球模式 -->
+  <div id="miniDot" class="mini-dot hidden" title="悬浮归档球 · 拖入文件移动至 00【Archive】（按住 Ctrl 复制）· 单击展开 / 双击主窗 / 拖拽移动">
+    <div id="miniDotOrb" class="mini-dot-orb synced">
+      <span id="miniDotCount" class="mini-dot-count">✓</span>
+    </div>
+  </div>
+
+  <script type="module" src="./scripts/mini.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+[
+  {
+    "name": "reset",
+    "eval": "(()=>{try{localStorage.setItem('chronobox_left_collapsed','0');localStorage.setItem('chronobox_right_collapsed','0');localStorage.removeItem('chronobox_sidebar_w');localStorage.removeItem('chronobox_inspector_w');localStorage.setItem('chronobox_active_view','matrix');localStorage.setItem('chronobox_matrix_col_mode','0');}catch(e){} return 'ok';})()",
+    "wait": 200
+  },
+  {
+    "name": "light",
+    "eval": "window.chronoboxApi.setTheme('light')",
+    "wait": 500
+  },
+  {
+    "name": "reload",
+    "eval": "location.reload()",
+    "wait": 4800
+  },
+  {
+    "name": "matrix-auto",
+    "eval": "document.querySelector('[data-view=\"matrix\"]').click()",
+    "wait": 1300,
+    "shot": "01-matrix-auto"
+  },
+  {
+    "name": "matrix-fixed7",
+    "eval": "(()=>{const s=document.querySelector('#selMatrixColMode'); s.value='7'; s.dispatchEvent(new Event('change',{bubbles:true})); return s.value;})()",
+    "wait": 1300,
+    "shot": "02-matrix-fixed7"
+  },
+  {
+    "name": "dblclick-cell",
+    "eval": "(()=>{const td=document.querySelector('.matrix-row .matrix-cell-clickable, .matrix-row td.matrix-td-cell[data-col-idx]'); if(!td) return 'none'; td.dispatchEvent(new MouseEvent('dblclick',{bubbles:true})); return 'ok';})()",
+    "wait": 1200,
+    "shot": "03-cell-detail"
+  },
+  {
+    "name": "browser",
+    "eval": "document.querySelector('[data-view=\"browser\"]').click()",
+    "wait": 1500,
+    "shot": "04-browser"
+  },
+  {
+    "name": "browser-sub",
+    "eval": "(()=>{const b=document.querySelector('.br-row[data-br-dir=\"1\"]'); if(b){b.dispatchEvent(new MouseEvent('dblclick',{bubbles:true})); return 'enter';} return 'none';})()",
+    "wait": 1400,
+    "shot": "05-browser-sub"
+  },
+  {
+    "name": "diff",
+    "eval": "document.querySelector('[data-view=\"diff\"]').click()",
+    "wait": 1500
+  },
+  {
+    "name": "diff-open",
+    "eval": "(()=>{const t=document.querySelector('#diffToSelect .cselect'); if(t){t.click(); return 'open';} return 'none';})()",
+    "wait": 900,
+    "shot": "06-diff-dropdown"
+  },
+  {
+    "name": "close",
+    "eval": "document.body.click()",
+    "wait": 400
+  },
+  {
+    "name": "settings",
+    "eval": "document.querySelector('[data-view=\"settings\"]').click()",
+    "wait": 1500,
+    "shot": "07-settings-general"
+  },
+  {
+    "name": "matrix-back",
+    "eval": "document.querySelector('[data-view=\"matrix\"]').click(); (()=>{const s=document.querySelector('#selMatrixColMode'); s.value='0'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
+    "wait": 900
+  },
+  {
+    "name": "mini",
+    "shot": "mini"
+  }
+]
